@@ -4,6 +4,7 @@ import pygame as game
 class State: 
     def __init__(self):
         pass
+    
     #Game state
     running = True
     inLevel =False
@@ -12,6 +13,9 @@ class State:
     inMenu = True
     ending = True
     collideWithObject = False
+    stopped = False
+    right = True
+    
     #Screen
     mainValley = True
     north = False
@@ -24,8 +28,7 @@ class State:
     file = reader.read()
     reader.close()
     user = json.loads(file)
-    
-    volume = user["volume"]
+     
     currentLevel = user["currentLevel"]
     
 class Screen:

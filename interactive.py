@@ -9,11 +9,8 @@ class Button():
     def buttonPressed(self):
        if State.mouseDown == True:
         if self.rect.collidepoint(game.mouse.get_pos()):
-                State.collideWithObject |= True
                 State.mouseDown = False
                 return True
-        else:
-            State.collideWithObject |= False
             
     def buttonOnCursor(self):
         if self.rect.collidepoint(game.mouse.get_pos()):

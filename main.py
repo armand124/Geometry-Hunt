@@ -16,15 +16,18 @@ while State.running:
        Menu.handle()
        Menu.events()
     if State.inLevel:
-      if State.mainValley:
+      if State.stopped:
+        Level.stopped()
+      else:
+       if State.mainValley:
         Chunks.mainScreen()
-      if State.north:
+       if State.north:
         Chunks.northScreen()
-      if State.east:
+       if State.east:
         Chunks.eastScreen()
-      if State.west:
+       if State.west:
         Chunks.westScreen()
-      if State.south:
+       if State.south:
         Chunks.southScreen()
       
     clock.tick(320)

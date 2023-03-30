@@ -10,6 +10,9 @@ class Level:
     next_un = game.image.load(os.path.join("assets/level","unpressedContinue.png")).convert_alpha()
     next_p = game.image.load(os.path.join("assets/level", "continuePressed.png")).convert_alpha()
     
+    quit_un = game.image.load(os.path.join("assets/level","unpressedQuit.png")).convert_alpha()
+    quit_p = game.image.load(os.path.join("assets/level", "quitPressed.png")).convert_alpha()
+    
     #Forms 
     square_png = game.image.load(os.path.join("assets/level","square.png")).convert_alpha()
     triangle_png = game.image.load(os.path.join("assets/level","triangle.png")).convert_alpha()
@@ -22,7 +25,11 @@ class Level:
     finish_g = game.image.load(os.path.join("assets/level",'finishedScreen_good.png')).convert_alpha()
     finish_b = game.image.load(os.path.join("assets/level",'finishedScreen_bad.png'))
     
+    stop = game.image.load(os.path.join("assets/level",'stopped.png')).convert_alpha()
+    
     nextButton = Button(790,500,next_p,next_un)
+    quitButton = Button(790,730,quit_p,quit_un)
+    
     elements = []
     reader = open(os.path.join("assets/level",'levels.json'),'r')
     file = reader.read()
@@ -72,6 +79,7 @@ class Level:
         Player.y = 1080/2
         State.mainValley = True
         State.north = False
+        State.stopped = False
         State.south = False
         State.east = False
         State.west = False
@@ -92,16 +100,48 @@ class Level:
           Level.begin(State.currentLevel)
           State.postLevel = False
           State.inLevel = True
+      if Level.quitButton.buttonPressed():
+         State.inLevel = False
+         State.inMenu = True
+         State.postLevel = False
+         reader = open(os.path.join("assets",'settings.json'),'w')
+         settings = {
+             "currentLevel" : State.currentLevel
+         }
+         with reader as outfile:
+             json.dump(settings,outfile)
+         reader.close()
+      Level.quitButton.showButton(Level.quit_p,Level.quit_un)
       Level.nextButton.showButton(Level.next_p,Level.next_un)
       game.display.update()
-
-
+      
+    def stopped():
+      Screen.WIN.blit(Level.stop,(0,0))
+      if Level.nextButton.buttonPressed():
+        State.stopped = False
+        State.inLevel = True
+      if Level.quitButton.buttonPressed():
+          State.inLevel = False
+          State.postLevel = 0
+          State.inMenu = True
+          State.stopped = False
+          Player.x = 1920/2
+          Player.y = 1080/2
+          State.right = True
+      Level.quitButton.showButton(Level.quit_p,Level.quit_un)
+      Level.nextButton.showButton(Level.next_p,Level.next_un)
+      game.display.update()
+          
 #Loading player
 class Character:
-    player = game.image.load(os.path.join("assets/player", "player.png")).convert_alpha()
+    player_left = game.image.load(os.path.join("assets/player", "player_left.png")).convert_alpha()
+    player_right = game.image.load(os.path.join("assets/player",'player_right.png')).convert_alpha()
     def show():
-        Player.handleMovement(game.key.get_pressed())
-        Screen.WIN.blit(Character.player,(Player.x,Player.y))
+        Player.handleMovement(game.key.get_pressed())           
+        if State.right:
+          Screen.WIN.blit(Character.player_right,(Player.x,Player.y))
+        else:
+           Screen.WIN.blit(Character.player_left,(Player.x,Player.y)) 
 
 #Loading chunks
 class Chunks:
@@ -126,7 +166,10 @@ class Chunks:
                 State.running = False
                 sys.exit()
             if event.type == game.MOUSEBUTTONDOWN:
-                State.mouseDown = True                
+                State.mouseDown = True   
+            if event.type == game.KEYDOWN:
+                if event.key == game.K_ESCAPE:
+                    State.stopped = not State.stopped            
     #East
     def eastScreen():
         Screen.WIN.blit(Chunks.east,(0,0))
